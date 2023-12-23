@@ -19,10 +19,13 @@ jobs:
     if: "github.ref == 'refs/heads/main'"
     steps:
       - uses: actions/checkout@v4
+
       - uses: docker-practice/actions-setup-docker@master
         timeout-minutes: 10
       - run: |
           set -x
+
+          echo "${{ secrets.INTERNAL_API_ENV_FILE }}" > .env
 
           docker build . -t $container_name
 
