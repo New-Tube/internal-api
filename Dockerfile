@@ -16,13 +16,12 @@ RUN go version
 
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
-ENV PATH="$PATH:$(go env GOPATH)/bin"
 
 COPY . . 
 
 ENV GOOS=linux
 ENV GOARCH=amd64
-RUN make build
+RUN PATH="$PATH:$(go env GOPATH)/bin" make build
 
 FROM --platform=amd64 ubuntu:22.04
 
@@ -30,6 +29,8 @@ WORKDIR /app
 
 COPY --from=builder /build/internal-api /app/internal-api
 COPY --from=builder /build/.env /app/.env
+
+EXPOSE 5050
 
 ENTRYPOINT [ "./internal-api" ]
 

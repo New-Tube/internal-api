@@ -16,7 +16,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", 5050))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", 5050))
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
