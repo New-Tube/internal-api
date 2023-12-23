@@ -1,5 +1,5 @@
 .PHONY: all
-all: build run
+all: build test run
 
 .PHONY: build
 build:
@@ -8,3 +8,7 @@ build:
 
 .PHONY: run
 run: ./internal-api
+
+.PHONY: test
+test: build
+	echo "no tests"
