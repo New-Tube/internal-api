@@ -1,5 +1,7 @@
 name: Main workflow
 on: [push]
+env:
+  container_name: internal-api
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -9,4 +11,21 @@ jobs:
         with:
           go-version: "1.21.5"
       - run: |
-          make build
+          make test
+
+  push:
+    needs: [test]
+    runs-on: ubuntu-latest
+    if: "github.ref == 'refs/heads/main'"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker-practice/actions-setup-docker@master
+        timeout-minutes: 10
+      - run: |
+          set -x
+
+          docker build . -t $container_name
+
+          docker login --username ${{ secrets.DOCKER_USER }} --password ${{ secrets.DOCKER_USER_PASS }} ${{ vars.DOCKER_SERVER }}
+          docker image tag $container_name ${{ vars.DOCKER_SERVER }}/$container_name
+          docker push ${{ vars.DOCKER_SERVER }}/$container_name
