@@ -39,8 +39,6 @@ jobs:
       - run: |
           set -x
 
-          echo "${{ secrets.INTERNAL_API_ENV_FILE }}" > .env
-
           docker build . -t $container_name
 
           docker login --username ${{ secrets.DOCKER_USER }} --password ${{ secrets.DOCKER_USER_PASS }} ${{ vars.DOCKER_SERVER }}

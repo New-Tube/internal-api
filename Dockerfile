@@ -28,7 +28,6 @@ FROM --platform=amd64 ubuntu:22.04
 WORKDIR /app
 
 COPY --from=builder /build/internal-api /app/internal-api
-COPY --from=builder /build/.env /app/.env
 
 EXPOSE 5050
 
