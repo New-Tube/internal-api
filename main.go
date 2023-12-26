@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"internal-api/db"
 	"internal-api/endpoints"
 	"log"
 	"net"
@@ -15,6 +16,9 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	db.ConnectToDB()
+	db.Migrate()
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", 5050))
 	if err != nil {
