@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type Like struct {
+type Reaction struct {
 	gorm.Model
 
 	ID        uint64 `json:"id"`
@@ -14,6 +14,8 @@ type Like struct {
 	CommentID uint64 `json:"comment_id"`
 	UserID    uint64 `json:"user_id"`
 
-	CreatedAt time.Time      `json:"created_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+	IsLIke    bool `json:"is_like"`
+	IsDislike bool `json:"is_dislike"`
+
+	CreatedAt time.Time `json:"created_at"`
 }

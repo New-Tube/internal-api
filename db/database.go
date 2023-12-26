@@ -37,6 +37,6 @@ func Migrate() error {
 		&db_models.Video{},
 		&db_models.MediaSource{},
 		&db_models.Comment{},
-		&db_models.Like{},
+		&db_models.Reaction{},
 	)
 }
