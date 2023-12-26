@@ -1,6 +1,10 @@
 package db_models
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type FileState = uint16
 
@@ -24,4 +28,8 @@ type MediaSource struct {
 	LowQualityFileState    FileState `json:"low_quality_file_state"`
 	MediumQualityFileState FileState `json:"medium_quality_file_state"`
 	HighQualityFileState   FileState `json:"high_quality_file_state"`
+
+	CreatedAt time.Time      `json:"created_at"`
+	EditedAt  time.Time      `json:"edited_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at"`
 }
