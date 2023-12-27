@@ -24,6 +24,7 @@ type Video struct {
 	Description string `json:"description"`
 
 	Privacy Privacy `json:"privacy"`
+	Link    string  `json:"link"`
 
 	Likes    uint64 `json:"likes"`
 	Dislikes uint64 `json:"dislikes"`
