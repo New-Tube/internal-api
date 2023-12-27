@@ -10,7 +10,27 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB_Connection *gorm.DB
+var dbConnection *gorm.DB
+
+func GetDBConnection() (*gorm.DB, error) {
+	if dbConnection == nil {
+		err := ConnectToDB()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	sql, err := dbConnection.DB()
+	if err != nil {
+		return nil, err
+	}
+	err = sql.Ping()
+	if err != nil {
+		return nil, err
+	}
+
+	return dbConnection, nil
+}
 
 func ConnectToDB() error {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Yekaterinburg",
@@ -26,13 +46,17 @@ func ConnectToDB() error {
 		return errors.Errorf("Failed to connect database: %v", err)
 	}
 
-	DB_Connection = db
+	dbConnection = db
 
 	return nil
 }
 
 func Migrate() error {
-	return DB_Connection.AutoMigrate(
+	conn, err := GetDBConnection()
+	if err != nil {
+		return err
+	}
+	return conn.AutoMigrate(
 		&db_models.User{},
 		&db_models.Video{},
 		&db_models.MediaSource{},
