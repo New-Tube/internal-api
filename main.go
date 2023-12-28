@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"internal-api/db"
-	"internal-api/endpoints"
 	"log"
 	"net"
 
@@ -25,7 +24,6 @@ func main() {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	endpoints.RegisterTestService(s)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
