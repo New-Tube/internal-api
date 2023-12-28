@@ -17,12 +17,12 @@ const (
 type Video struct {
 	gorm.Model
 
-	ID          uint64 `json:"id"`
-	UserID      uint64 `json:"user_id"`
-	User        *User  `json:"user"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Thumbnail   uint64 `json:"thumbnail"`
+	ID              uint64 `json:"id"`
+	UserID          uint64 `json:"user_id"`
+	User            *User  `json:"user"`
+	Title           string `json:"title"`
+	Description     string `json:"description"`
+	ThumbnailFileID uint64 `json:"thumbnail_file_id"`
 
 	Privacy Privacy `json:"privacy"`
 	Link    string  `json:"link"`
