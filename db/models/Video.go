@@ -22,6 +22,7 @@ type Video struct {
 	User        *User  `json:"user"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Thumbnail   uint64 `json:"thumbnail"`
 
 	Privacy Privacy `json:"privacy"`
 	Link    string  `json:"link"`

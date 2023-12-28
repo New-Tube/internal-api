@@ -14,6 +14,7 @@ type User struct {
 	Surname      string `json:"surname"`
 	Nickname     string `json:"nickname"`
 	PasswordHash uint64 `json:"password_hash"`
+	AvatarFileID uint64 `json:"avatar_file_id"`
 
 	CreatedAt time.Time      `json:"created_at"`
 	EditedAt  time.Time      `json:"edited_at"`
