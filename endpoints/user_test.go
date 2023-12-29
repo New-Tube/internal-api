@@ -69,3 +69,243 @@ func TestUserCreate(t *testing.T) {
 
 	_ = resp
 }
+
+func TestUserGetByID(t *testing.T) {
+	err := godotenv.Load("../.env.tests")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	resetDB()
+	db.Migrate()
+
+	ctx := context.TODO()
+	us := userServer{}
+
+	conn, err := db.GetDBConnection()
+	if err != nil {
+		t.Errorf("DB error: %v", err)
+	}
+
+	userModel := db_models.User{
+		Name:         "TestUser",
+		Surname:      "TEst",
+		Nickname:     "User",
+		PasswordHash: 5665,
+	}
+
+	result := conn.Create(&userModel)
+	if result.Error != nil {
+		t.Errorf("Create user error: %v", result.Error)
+	}
+
+	req := internal_api_protos.UserRequest{
+		ID: userModel.ID,
+	}
+	resp, err := us.Get(ctx, &req)
+
+	if err != nil {
+		t.Errorf("Get by id request error: %v", err)
+	}
+
+	if resp.ID != userModel.ID {
+		t.Errorf("ID differ: expected: %d, got: %d", resp.ID, userModel.ID)
+	}
+	if resp.Nickname != userModel.Nickname {
+		t.Errorf("Nickname differ: expected: %s, got: %s", resp.Nickname, userModel.Nickname)
+	}
+	if resp.PasswordHash != userModel.PasswordHash {
+		t.Errorf("PasswordHash differ: expected: %d, got: %d", resp.PasswordHash, userModel.PasswordHash)
+	}
+	if resp.Name != userModel.Name {
+		t.Errorf("Name differ: expected: %s, got: %s", resp.Name, userModel.Nickname)
+	}
+	if resp.Surname != userModel.Surname {
+		t.Errorf("Surname differ: expected: %s, got: %s", resp.Surname, userModel.Nickname)
+	}
+}
+
+func TestUserGetByIDFill(t *testing.T) {
+	err := godotenv.Load("../.env.tests")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	resetDB()
+	db.Migrate()
+
+	ctx := context.TODO()
+	us := userServer{}
+
+	conn, err := db.GetDBConnection()
+	if err != nil {
+		t.Errorf("DB error: %v", err)
+	}
+
+	userModel := db_models.User{
+		Name:         "TestUser",
+		Surname:      "TEst",
+		Nickname:     "User",
+		PasswordHash: 5665,
+	}
+
+	err = fillUsers(0)
+	if err != nil {
+		t.Errorf("Fill error: %v", err)
+	}
+
+	result := conn.Create(&userModel)
+	if result.Error != nil {
+		t.Errorf("Create user error: %v", result.Error)
+	}
+
+	err = fillUsers(3)
+	if err != nil {
+		t.Errorf("Fill error: %v", err)
+	}
+
+	req := internal_api_protos.UserRequest{
+		ID: userModel.ID,
+	}
+	resp, err := us.Get(ctx, &req)
+
+	if err != nil {
+		t.Errorf("Get by id request error: %v", err)
+	}
+
+	if resp.ID != userModel.ID {
+		t.Errorf("ID differ: expected: %d, got: %d", resp.ID, userModel.ID)
+	}
+	if resp.Nickname != userModel.Nickname {
+		t.Errorf("Nickname differ: expected: %s, got: %s", resp.Nickname, userModel.Nickname)
+	}
+	if resp.PasswordHash != userModel.PasswordHash {
+		t.Errorf("PasswordHash differ: expected: %d, got: %d", resp.PasswordHash, userModel.PasswordHash)
+	}
+	if resp.Name != userModel.Name {
+		t.Errorf("Name differ: expected: %s, got: %s", resp.Name, userModel.Nickname)
+	}
+	if resp.Surname != userModel.Surname {
+		t.Errorf("Surname differ: expected: %s, got: %s", resp.Surname, userModel.Nickname)
+	}
+}
+
+func TestUserGetByNickname(t *testing.T) {
+	err := godotenv.Load("../.env.tests")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	resetDB()
+	db.Migrate()
+
+	ctx := context.TODO()
+	us := userServer{}
+
+	conn, err := db.GetDBConnection()
+	if err != nil {
+		t.Errorf("DB error: %v", err)
+	}
+
+	userModel := db_models.User{
+		Name:         "TestUser",
+		Surname:      "TEst",
+		Nickname:     "User",
+		PasswordHash: 5665,
+	}
+
+	result := conn.Create(&userModel)
+	if result.Error != nil {
+		t.Errorf("Create user error: %v", result.Error)
+	}
+
+	req := internal_api_protos.UserRequest{
+		Nickname: userModel.Nickname,
+	}
+	resp, err := us.Get(ctx, &req)
+
+	if err != nil {
+		t.Errorf("Get by id request error: %v", err)
+	}
+
+	if resp.ID != userModel.ID {
+		t.Errorf("ID differ: expected: %d, got: %d", resp.ID, userModel.ID)
+	}
+	if resp.Nickname != userModel.Nickname {
+		t.Errorf("Nickname differ: expected: %s, got: %s", resp.Nickname, userModel.Nickname)
+	}
+	if resp.PasswordHash != userModel.PasswordHash {
+		t.Errorf("PasswordHash differ: expected: %d, got: %d", resp.PasswordHash, userModel.PasswordHash)
+	}
+	if resp.Name != userModel.Name {
+		t.Errorf("Name differ: expected: %s, got: %s", resp.Name, userModel.Nickname)
+	}
+	if resp.Surname != userModel.Surname {
+		t.Errorf("Surname differ: expected: %s, got: %s", resp.Surname, userModel.Nickname)
+	}
+}
+
+func TestUserGetByNicknameFill(t *testing.T) {
+	err := godotenv.Load("../.env.tests")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	resetDB()
+	db.Migrate()
+
+	ctx := context.TODO()
+	us := userServer{}
+
+	conn, err := db.GetDBConnection()
+	if err != nil {
+		t.Errorf("DB error: %v", err)
+	}
+
+	userModel := db_models.User{
+		Name:         "TestUser",
+		Surname:      "TEst",
+		Nickname:     "User",
+		PasswordHash: 5665,
+	}
+
+	err = fillUsers(0)
+	if err != nil {
+		t.Errorf("Fill error: %v", err)
+	}
+
+	result := conn.Create(&userModel)
+	if result.Error != nil {
+		t.Errorf("Create user error: %v", result.Error)
+	}
+
+	err = fillUsers(3)
+	if err != nil {
+		t.Errorf("Fill error: %v", err)
+	}
+
+	req := internal_api_protos.UserRequest{
+		Nickname: userModel.Nickname,
+	}
+	resp, err := us.Get(ctx, &req)
+
+	if err != nil {
+		t.Errorf("Get by id request error: %v", err)
+	}
+
+	if resp.ID != userModel.ID {
+		t.Errorf("ID differ: expected: %d, got: %d", resp.ID, userModel.ID)
+	}
+	if resp.Nickname != userModel.Nickname {
+		t.Errorf("Nickname differ: expected: %s, got: %s", resp.Nickname, userModel.Nickname)
+	}
+	if resp.PasswordHash != userModel.PasswordHash {
+		t.Errorf("PasswordHash differ: expected: %d, got: %d", resp.PasswordHash, userModel.PasswordHash)
+	}
+	if resp.Name != userModel.Name {
+		t.Errorf("Name differ: expected: %s, got: %s", resp.Name, userModel.Nickname)
+	}
+	if resp.Surname != userModel.Surname {
+		t.Errorf("Surname differ: expected: %s, got: %s", resp.Surname, userModel.Nickname)
+	}
+}
