@@ -8,6 +8,7 @@ import (
 	pb "github.com/New-Tube/internal-api-protos"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
+	"gorm.io/gorm"
 )
 
 const COMMENTS_GET_MAX_LIMIT uint32 = 100
@@ -143,7 +144,10 @@ func (s *commentService) GetReaction(ctx context.Context, request *pb.CommentReq
 	result = conn.Limit(1).Find(&reactionModel)
 
 	if result.RowsAffected != 1 {
-		return nil, errors.Errorf("Given user hadn't reacted to this video")
+		return &pb.CommentReactionResponse{
+			IsLike:    false,
+			IsDislike: false,
+		}, nil
 	}
 
 	return &pb.CommentReactionResponse{
@@ -175,21 +179,62 @@ func (s *commentService) UpdateReaction(ctx context.Context, request *pb.Comment
 
 	result = conn.Limit(1).Find(&reactionModel)
 
-	if result.RowsAffected != 1 {
-		return nil, errors.Errorf("Given user hadn't reacted to this video")
-	}
+	reactionModel.IsLike = request.GetIsLike()
+	reactionModel.IsDislike = request.GetIsDislike()
 
 	if request.GetIsLike() && request.GetIsDislike() {
 		return nil, errors.Errorf("You cannot set isLike=true and isDislike=true")
 	}
 
-	reactionModel.IsLike = request.GetIsLike()
-	reactionModel.IsDislike = request.GetIsDislike()
+	err = conn.Transaction(func(tx *gorm.DB) error {
+		if result.RowsAffected != 1 {
+			// No reacord in the database, so we create one
+			createResult := tx.Create(reactionModel)
 
-	updateResult := conn.Save(&reactionModel)
+			if createResult.Error != nil {
+				return errors.Errorf("DB error occured: %v", createResult.Error)
+			}
+		} else {
+			// Updating existing record
+			updateResult := tx.Save(&reactionModel)
 
-	if updateResult.Error != nil {
-		return nil, errors.Errorf("DB error occured: %v", updateResult.Error)
+			if updateResult.Error != nil {
+				return errors.Errorf("DB error occured: %v", updateResult.Error)
+			}
+		}
+
+		// Using raw SQL query in case multiple users change commentModel at the same time,
+		//  so we want to apply these changes for live data in DB
+		if reactionModel.IsLike && !request.IsLike {
+			result := tx.Exec("UPDATE comments SET likes = likes - 1 WHERE id = ?", commentModel.ID)
+			if result.Error != nil {
+				return result.Error
+			}
+		}
+		if !reactionModel.IsLike && request.IsLike {
+			result := tx.Exec("UPDATE comments SET likes = likes + 1 WHERE id = ?", commentModel.ID)
+			if result.Error != nil {
+				return result.Error
+			}
+		}
+		if reactionModel.IsDislike && !request.IsDislike {
+			result := tx.Exec("UPDATE comments SET dislikes = dislikes - 1 WHERE id = ?", commentModel.ID)
+			if result.Error != nil {
+				return result.Error
+			}
+		}
+		if !reactionModel.IsDislike && reactionModel.IsDislike {
+			result := tx.Exec("UPDATE comments SET dislikes = dislikes + 1 WHERE id = ?", commentModel.ID)
+			if result.Error != nil {
+				return result.Error
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, errors.Errorf("DB error occured: %v", err)
 	}
 
 	return &pb.StatusResponse{
