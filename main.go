@@ -16,8 +16,14 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	db.ConnectToDB()
-	db.Migrate()
+	err = db.ConnectToDB()
+	if err != nil {
+		log.Fatalf("Cannot connect to the database: %v", err)
+	}
+	err = db.Migrate()
+	if err != nil {
+		log.Fatalf("Cannot migrate the database: %v", err)
+	}
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", 5050))
 	if err != nil {
