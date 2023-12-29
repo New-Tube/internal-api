@@ -7,9 +7,12 @@ import (
 
 	pb "github.com/New-Tube/internal-api-protos"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc"
 )
 
-type videoCreatorUserService struct{ pb.UnimplementedUserServer }
+type videoCreatorUserService struct {
+	pb.UnimplementedVideoCreatorUserServer
+}
 
 func (s *videoCreatorUserService) Create(ctx context.Context, request *pb.VideoRequest) (*pb.VideoCreateResponse, error) {
 	conn, err := db.GetDBConnection()
@@ -91,4 +94,8 @@ func (s *videoCreatorUserService) Delete(ctx context.Context, request *pb.VideoR
 		Success: true,
 		Message: "",
 	}, nil
+}
+
+func RegisterVideoCreatorUserService(s *grpc.Server) {
+	pb.RegisterVideoCreatorUserServer(s, &videoCreatorUserService{})
 }

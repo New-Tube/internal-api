@@ -7,9 +7,12 @@ import (
 
 	pb "github.com/New-Tube/internal-api-protos"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc"
 )
 
-type userServer struct{ pb.UnimplementedUserServer }
+type userServer struct {
+	pb.UnimplementedUserServer
+}
 
 func (s *userServer) Get(ctx context.Context, request *pb.UserRequest) (*pb.UserResponse, error) {
 	conn, err := db.GetDBConnection()
@@ -103,4 +106,8 @@ func (s *userServer) Create(ctx context.Context, request *pb.UserCreateRequest) 
 		CreatedAt:    uint64(model.CreatedAt.Unix()),
 		EditedAt:     uint64(model.EditedAt.Unix()),
 	}, nil
+}
+
+func RegisterUserService(s *grpc.Server) {
+	pb.RegisterUserServer(s, &userServer{})
 }

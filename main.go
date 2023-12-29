@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"internal-api/db"
+	"internal-api/endpoints"
 	"log"
 	"net"
 
@@ -29,7 +30,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
+
 	s := grpc.NewServer()
+
+	endpoints.RegisterUserService(s)
+	endpoints.RegisterCommentService(s)
+	endpoints.RegisterVideoRegularUserService(s)
+	endpoints.RegisterVideoCreatorUserService(s)
+
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v", err)

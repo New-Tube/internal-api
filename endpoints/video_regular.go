@@ -7,6 +7,7 @@ import (
 
 	pb "github.com/New-Tube/internal-api-protos"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc"
 )
 
 type videoRegularUserService struct {
@@ -82,4 +83,8 @@ func (s *videoRegularUserService) UpdateReaction(ctx context.Context, request *p
 		},
 		request,
 	)
+}
+
+func RegisterVideoRegularUserService(s *grpc.Server) {
+	pb.RegisterVideoRegularUserServer(s, &videoRegularUserService{})
 }
