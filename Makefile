@@ -18,4 +18,9 @@ run:
 
 .PHONY: test
 test: build
-	echo "no tests"
+	docker run --name test_db -p 5432:5432 -e POSTGRES_PASSWORD=password -e POSTGRES_USER=new-tube -d postgres && \
+	sleep 5 && \
+	cd endpoints && \
+	go test && \
+	docker stop test_db && \
+	docker rm test_db
