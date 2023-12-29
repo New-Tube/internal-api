@@ -3,6 +3,7 @@ package endpoints
 import (
 	"internal-api/db"
 	db_models "internal-api/db/models"
+	"strconv"
 )
 
 func resetDB() error {
@@ -12,12 +13,12 @@ func resetDB() error {
 		return err
 	}
 
-	result := conn.Exec("DROP TABLE comments, media_sources, reactions, users, videos")
+	result := conn.Exec("DROP TABLE IF EXISTS comments, media_sources, reactions, users, videos")
 
 	return result.Error
 }
 
-func fillUsers() error {
+func fillUsers(change int) error {
 	conn, err := db.GetDBConnection()
 
 	if err != nil {
@@ -55,6 +56,15 @@ func fillUsers() error {
 			Nickname:     "augue",
 			PasswordHash: 2311,
 		},
+	}
+
+	for _, u := range users {
+		if change != 0 {
+			u.Name += strconv.Itoa(change)
+			u.Surname += strconv.Itoa(change)
+			u.Nickname += strconv.Itoa(change)
+			u.PasswordHash *= uint64(change)
+		}
 	}
 
 	return conn.Create(users).Error
