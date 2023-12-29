@@ -44,7 +44,7 @@ func (s *videoCreatorUserService) UpdateInfo(ctx context.Context, request *pb.Vi
 	}
 	model.Title = request.GetTitle()
 	model.Description = request.GetDescription()
-	model.Privacy = pb.Privacy(dbPrivacyToEnum(request.GetPrivacy()))
+	model.Privacy = uint16(request.GetPrivacy())
 	model.Link = request.GetLink()
 
 	updateVideo := result.Save(&model)

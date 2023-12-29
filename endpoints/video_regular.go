@@ -65,10 +65,7 @@ func (s *videoRegularUserService) GetVideoStream(ctx context.Context, request *p
 
 func (s *videoRegularUserService) GetReaction(ctx context.Context, request *pb.ReactionRequest) (*pb.ReactionResponse, error) {
 	return getReaction(
-		db_models.Comment{
-			ID: request.GetID(),
-		},
-		reactionSearchParams{
+		ReactionSearchParams{
 			VideoID:   request.GetID(),
 			CommentID: 0,
 			UserID:    request.GetUserID(),
@@ -78,10 +75,7 @@ func (s *videoRegularUserService) GetReaction(ctx context.Context, request *pb.R
 
 func (s *videoRegularUserService) UpdateReaction(ctx context.Context, request *pb.UpdateReactionRequest) (*pb.StatusResponse, error) {
 	return updateReaction(
-		db_models.Comment{
-			ID: request.GetID(),
-		},
-		reactionSearchParams{
+		ReactionSearchParams{
 			VideoID:   request.GetID(),
 			CommentID: 0,
 			UserID:    request.GetUserID(),

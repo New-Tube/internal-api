@@ -121,10 +121,7 @@ func (s *commentService) Create(ctx context.Context, request *pb.CommentCreateRe
 
 func (s *commentService) GetReaction(ctx context.Context, request *pb.ReactionRequest) (*pb.ReactionResponse, error) {
 	return getReaction(
-		db_models.Comment{
-			ID: request.GetID(),
-		},
-		reactionSearchParams{
+		ReactionSearchParams{
 			VideoID:   0,
 			CommentID: request.GetID(),
 			UserID:    request.GetUserID(),
@@ -134,10 +131,7 @@ func (s *commentService) GetReaction(ctx context.Context, request *pb.ReactionRe
 
 func (s *commentService) UpdateReaction(ctx context.Context, request *pb.UpdateReactionRequest) (*pb.StatusResponse, error) {
 	return updateReaction(
-		db_models.Comment{
-			ID: request.GetID(),
-		},
-		reactionSearchParams{
+		ReactionSearchParams{
 			VideoID:   0,
 			CommentID: request.GetID(),
 			UserID:    request.GetUserID(),

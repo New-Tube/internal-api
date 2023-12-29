@@ -21,15 +21,20 @@ func (s *userServer) Get(ctx context.Context, request *pb.UserRequest) (*pb.User
 		model = db_models.User{
 			ID: request.GetID(),
 		}
+		result := conn.Limit(1).Find(&model)
+		if result.RowsAffected < 1 {
+			return nil, errors.Errorf("DB error occured: User not found")
+		}
 	} else {
-		model = db_models.User{
-			Nickname: request.GetNickname(),
+		model = db_models.User{}
+		_, rows_affected := applyFilters[db_models.User](map[string]any{
+			"nickname": request.GetNickname(),
+		}, conn, &model)
+		if rows_affected < 1 {
+			return nil, errors.Errorf("DB error occured: User not found")
 		}
 	}
-	result := conn.Limit(1).Find(&model)
-	if result.RowsAffected < 1 {
-		return nil, errors.Errorf("DB error occured: User not found")
-	}
+
 	return &pb.UserResponse{
 		ID:           model.ID,
 		Name:         model.Name,
