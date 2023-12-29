@@ -9,9 +9,10 @@ import (
 type Privacy = uint16
 
 const (
-	Public Privacy = iota
-	Link
-	Private
+	PrivacyNone Privacy = iota
+	PrivacyPrivate
+	PrivacyLink
+	PrivacyPublic
 )
 
 type Video struct {
