@@ -179,14 +179,41 @@ func (s *commentService) UpdateReaction(ctx context.Context, request *pb.Comment
 
 	result = conn.Limit(1).Find(&reactionModel)
 
-	reactionModel.IsLike = request.GetIsLike()
-	reactionModel.IsDislike = request.GetIsDislike()
-
 	if request.GetIsLike() && request.GetIsDislike() {
 		return nil, errors.Errorf("You cannot set isLike=true and isDislike=true")
 	}
 
 	err = conn.Transaction(func(tx *gorm.DB) error {
+		// Using raw SQL query in case multiple users change commentModel at the same time,
+		//  so we want to apply these changes for live data in DB
+		if reactionModel.IsLike && !request.GetIsLike() {
+			result := tx.Exec("UPDATE comments SET likes = likes - 1 WHERE id = ?", commentModel.ID)
+			if result.Error != nil {
+				return result.Error
+			}
+		}
+		if !reactionModel.IsLike && request.GetIsLike() {
+			result := tx.Exec("UPDATE comments SET likes = likes + 1 WHERE id = ?", commentModel.ID)
+			if result.Error != nil {
+				return result.Error
+			}
+		}
+		if reactionModel.IsDislike && !request.GetIsDislike() {
+			result := tx.Exec("UPDATE comments SET dislikes = dislikes - 1 WHERE id = ?", commentModel.ID)
+			if result.Error != nil {
+				return result.Error
+			}
+		}
+		if !reactionModel.IsDislike && request.GetIsDislike() {
+			result := tx.Exec("UPDATE comments SET dislikes = dislikes + 1 WHERE id = ?", commentModel.ID)
+			if result.Error != nil {
+				return result.Error
+			}
+		}
+
+		reactionModel.IsLike = request.GetIsLike()
+		reactionModel.IsDislike = request.GetIsDislike()
+
 		if result.RowsAffected != 1 {
 			// No reacord in the database, so we create one
 			createResult := tx.Create(reactionModel)
@@ -200,33 +227,6 @@ func (s *commentService) UpdateReaction(ctx context.Context, request *pb.Comment
 
 			if updateResult.Error != nil {
 				return errors.Errorf("DB error occured: %v", updateResult.Error)
-			}
-		}
-
-		// Using raw SQL query in case multiple users change commentModel at the same time,
-		//  so we want to apply these changes for live data in DB
-		if reactionModel.IsLike && !request.IsLike {
-			result := tx.Exec("UPDATE comments SET likes = likes - 1 WHERE id = ?", commentModel.ID)
-			if result.Error != nil {
-				return result.Error
-			}
-		}
-		if !reactionModel.IsLike && request.IsLike {
-			result := tx.Exec("UPDATE comments SET likes = likes + 1 WHERE id = ?", commentModel.ID)
-			if result.Error != nil {
-				return result.Error
-			}
-		}
-		if reactionModel.IsDislike && !request.IsDislike {
-			result := tx.Exec("UPDATE comments SET dislikes = dislikes - 1 WHERE id = ?", commentModel.ID)
-			if result.Error != nil {
-				return result.Error
-			}
-		}
-		if !reactionModel.IsDislike && reactionModel.IsDislike {
-			result := tx.Exec("UPDATE comments SET dislikes = dislikes + 1 WHERE id = ?", commentModel.ID)
-			if result.Error != nil {
-				return result.Error
 			}
 		}
 
