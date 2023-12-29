@@ -2,14 +2,11 @@ package endpoints
 
 import (
 	"context"
-	"errors"
 	"internal-api/db"
 	db_models "internal-api/db/models"
-	"os/user"
 
 	pb "github.com/New-Tube/internal-api-protos"
-
-	"google.golang.org/grpc"
+	"github.com/pkg/errors"
 )
 
 type userServer struct{ pb.UnimplementedUserServer }
