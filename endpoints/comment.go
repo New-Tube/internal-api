@@ -8,7 +8,6 @@ import (
 	pb "github.com/New-Tube/internal-api-protos"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
-	"gorm.io/gorm"
 )
 
 const COMMENTS_GET_MAX_LIMIT uint32 = 100
@@ -120,127 +119,31 @@ func (s *commentService) Create(ctx context.Context, request *pb.CommentCreateRe
 	}, nil
 }
 
-func (s *commentService) GetReaction(ctx context.Context, request *pb.CommentRequest) (*pb.CommentReactionResponse, error) {
-	conn, err := db.GetDBConnection()
-	if err != nil {
-		return nil, errors.Errorf("DB error occured: %v", err)
-	}
-
-	commentModel := db_models.Comment{
-		ID: request.GetID(),
-	}
-	result := conn.Limit(1).Find(&commentModel)
-
-	if result.RowsAffected != 1 {
-		return nil, errors.Errorf("Comment with provided id not found")
-	}
-
-	reactionModel := db_models.Reaction{
-		VideoID:   commentModel.VideoID,
-		CommentID: commentModel.CommentID,
-		UserID:    commentModel.UserID,
-	}
-
-	result = conn.Limit(1).Find(&reactionModel)
-
-	if result.RowsAffected != 1 {
-		return &pb.CommentReactionResponse{
-			IsLike:    false,
-			IsDislike: false,
-		}, nil
-	}
-
-	return &pb.CommentReactionResponse{
-		IsLike:    reactionModel.IsLike,
-		IsDislike: reactionModel.IsDislike,
-	}, nil
+func (s *commentService) GetReaction(ctx context.Context, request *pb.ReactionRequest) (*pb.ReactionResponse, error) {
+	return getReaction(
+		db_models.Comment{
+			ID: request.GetID(),
+		},
+		reactionSearchParams{
+			VideoID:   0,
+			CommentID: request.GetID(),
+			UserID:    request.GetUserID(),
+		},
+	)
 }
 
-func (s *commentService) UpdateReaction(ctx context.Context, request *pb.CommentUpdateReactionRequest) (*pb.StatusResponse, error) {
-	conn, err := db.GetDBConnection()
-	if err != nil {
-		return nil, errors.Errorf("DB error occured: %v", err)
-	}
-
-	commentModel := db_models.Comment{
-		ID: request.GetID(),
-	}
-	result := conn.Limit(1).Find(&commentModel)
-
-	if result.RowsAffected != 1 {
-		return nil, errors.Errorf("Comment with provided id not found")
-	}
-
-	reactionModel := db_models.Reaction{
-		VideoID:   commentModel.VideoID,
-		CommentID: commentModel.CommentID,
-		UserID:    commentModel.UserID,
-	}
-
-	result = conn.Limit(1).Find(&reactionModel)
-
-	if request.GetIsLike() && request.GetIsDislike() {
-		return nil, errors.Errorf("You cannot set isLike=true and isDislike=true")
-	}
-
-	err = conn.Transaction(func(tx *gorm.DB) error {
-		// Using raw SQL query in case multiple users change commentModel at the same time,
-		//  so we want to apply these changes for live data in DB
-		if reactionModel.IsLike && !request.GetIsLike() {
-			result := tx.Exec("UPDATE comments SET likes = likes - 1 WHERE id = ?", commentModel.ID)
-			if result.Error != nil {
-				return result.Error
-			}
-		}
-		if !reactionModel.IsLike && request.GetIsLike() {
-			result := tx.Exec("UPDATE comments SET likes = likes + 1 WHERE id = ?", commentModel.ID)
-			if result.Error != nil {
-				return result.Error
-			}
-		}
-		if reactionModel.IsDislike && !request.GetIsDislike() {
-			result := tx.Exec("UPDATE comments SET dislikes = dislikes - 1 WHERE id = ?", commentModel.ID)
-			if result.Error != nil {
-				return result.Error
-			}
-		}
-		if !reactionModel.IsDislike && request.GetIsDislike() {
-			result := tx.Exec("UPDATE comments SET dislikes = dislikes + 1 WHERE id = ?", commentModel.ID)
-			if result.Error != nil {
-				return result.Error
-			}
-		}
-
-		reactionModel.IsLike = request.GetIsLike()
-		reactionModel.IsDislike = request.GetIsDislike()
-
-		if result.RowsAffected != 1 {
-			// No reacord in the database, so we create one
-			createResult := tx.Create(reactionModel)
-
-			if createResult.Error != nil {
-				return errors.Errorf("DB error occured: %v", createResult.Error)
-			}
-		} else {
-			// Updating existing record
-			updateResult := tx.Save(&reactionModel)
-
-			if updateResult.Error != nil {
-				return errors.Errorf("DB error occured: %v", updateResult.Error)
-			}
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return nil, errors.Errorf("DB error occured: %v", err)
-	}
-
-	return &pb.StatusResponse{
-		Success: true,
-		Message: "",
-	}, nil
+func (s *commentService) UpdateReaction(ctx context.Context, request *pb.UpdateReactionRequest) (*pb.StatusResponse, error) {
+	return updateReaction(
+		db_models.Comment{
+			ID: request.GetID(),
+		},
+		reactionSearchParams{
+			VideoID:   0,
+			CommentID: request.GetID(),
+			UserID:    request.GetUserID(),
+		},
+		request,
+	)
 }
 
 func (s *commentService) Delete(ctx context.Context, request *pb.CommentRequest) (*pb.StatusResponse, error) {
