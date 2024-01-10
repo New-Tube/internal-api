@@ -309,3 +309,159 @@ func TestUserGetByNicknameFill(t *testing.T) {
 		t.Errorf("Surname differ: expected: %s, got: %s", resp.Surname, userModel.Nickname)
 	}
 }
+
+func TestUserUpdate(t *testing.T) {
+	err := godotenv.Load("../.env.tests")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	resetDB()
+	db.Migrate()
+
+	ctx := context.TODO()
+	us := userServer{}
+
+	conn, err := db.GetDBConnection()
+	if err != nil {
+		t.Errorf("DB error: %v", err)
+	}
+
+	userModel := db_models.User{
+		Name:         "TestUser",
+		Surname:      "TEst",
+		Nickname:     "User",
+		PasswordHash: 5665,
+	}
+
+	result := conn.Create(&userModel)
+	if result.Error != nil {
+		t.Errorf("Create user error: %v", result.Error)
+	}
+
+	req := internal_api_protos.UserUpdateRequest{
+		ID:           userModel.ID,
+		Name:         "UserTest",
+		Surname:      "NO",
+		Nickname:     "None",
+		PasswordHash: 9999,
+	}
+	resp, err := us.Update(ctx, &req)
+
+	if err != nil {
+		t.Errorf("Update request error: %v", err)
+	}
+
+	if resp.Success == false {
+		t.Errorf("Update request success false")
+	}
+
+	newModel := db_models.User{
+		ID: userModel.ID,
+	}
+
+	result = conn.Limit(1).Find(&newModel)
+
+	if result.Error != nil {
+		t.Errorf("Get user after update request error: %v", err)
+	}
+
+	if newModel.ID != userModel.ID {
+		t.Errorf("ID differ: expected: %d, got: %d", newModel.ID, userModel.ID)
+	}
+	if newModel.Nickname != userModel.Nickname {
+		t.Errorf("Nickname differ: expected: %s, got: %s", newModel.Nickname, userModel.Nickname)
+	}
+	if newModel.PasswordHash != userModel.PasswordHash {
+		t.Errorf("PasswordHash differ: expected: %d, got: %d", newModel.PasswordHash, userModel.PasswordHash)
+	}
+	if newModel.Name != userModel.Name {
+		t.Errorf("Name differ: expected: %s, got: %s", newModel.Name, userModel.Nickname)
+	}
+	if newModel.Surname != userModel.Surname {
+		t.Errorf("Surname differ: expected: %s, got: %s", newModel.Surname, userModel.Nickname)
+	}
+}
+
+func TestUserUpdateFill(t *testing.T) {
+	err := godotenv.Load("../.env.tests")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	resetDB()
+	db.Migrate()
+
+	ctx := context.TODO()
+	us := userServer{}
+
+	conn, err := db.GetDBConnection()
+	if err != nil {
+		t.Errorf("DB error: %v", err)
+	}
+
+	userModel := db_models.User{
+		Name:         "TestUser",
+		Surname:      "TEst",
+		Nickname:     "User",
+		PasswordHash: 5665,
+	}
+
+	err = fillUsers(0)
+	if err != nil {
+		t.Errorf("Fill error: %v", err)
+	}
+
+	result := conn.Create(&userModel)
+	if result.Error != nil {
+		t.Errorf("Create user error: %v", result.Error)
+	}
+
+	err = fillUsers(3)
+	if err != nil {
+		t.Errorf("Fill error: %v", err)
+	}
+
+	req := internal_api_protos.UserUpdateRequest{
+		ID:           userModel.ID,
+		Name:         "UserTest",
+		Surname:      "NO",
+		Nickname:     "None",
+		PasswordHash: 9999,
+	}
+	resp, err := us.Update(ctx, &req)
+
+	if err != nil {
+		t.Errorf("Update request error: %v", err)
+	}
+
+	if resp.Success == false {
+		t.Errorf("Update request success false")
+	}
+
+	newModel := db_models.User{
+		ID: userModel.ID,
+	}
+
+	result = conn.Limit(1).Find(&newModel)
+
+	if result.Error != nil {
+		t.Errorf("Get user after update request error: %v", err)
+	}
+
+	if newModel.ID != userModel.ID {
+		t.Errorf("ID differ: expected: %d, got: %d", newModel.ID, userModel.ID)
+	}
+	if newModel.Nickname != userModel.Nickname {
+		t.Errorf("Nickname differ: expected: %s, got: %s", newModel.Nickname, userModel.Nickname)
+	}
+	if newModel.PasswordHash != userModel.PasswordHash {
+		t.Errorf("PasswordHash differ: expected: %d, got: %d", newModel.PasswordHash, userModel.PasswordHash)
+	}
+	if newModel.Name != userModel.Name {
+		t.Errorf("Name differ: expected: %s, got: %s", newModel.Name, userModel.Nickname)
+	}
+	if newModel.Surname != userModel.Surname {
+		t.Errorf("Surname differ: expected: %s, got: %s", newModel.Surname, userModel.Nickname)
+	}
+}
