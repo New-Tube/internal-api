@@ -23,7 +23,7 @@ jobs:
           export PATH="$PATH:$(go env GOPATH)/bin"
       - name: "Testing"
         run: |
-          make test
+          make testworkflow
 
   push:
     needs: [test]

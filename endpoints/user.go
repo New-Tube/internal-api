@@ -68,7 +68,7 @@ func (s *userServer) Update(ctx context.Context, request *pb.UserUpdateRequest) 
 	model.Nickname = request.GetNickname()
 	model.PasswordHash = request.GetPasswordHash()
 
-	updateUser := result.Save(&model)
+	updateUser := conn.Save(&model)
 
 	if updateUser.Error != nil {
 		return nil, errors.Errorf("DB error occured: %v", updateUser.Error)

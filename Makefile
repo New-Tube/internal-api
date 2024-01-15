@@ -21,7 +21,7 @@ test: build
 	docker run --name test_db -p 5432:5432 -e POSTGRES_PASSWORD=password -e POSTGRES_USER=new-tube -d postgres && \
 	sleep 5 && \
 	cd endpoints && \
-	go test || \
+	go test ; \
 	docker stop test_db && \
 	docker rm test_db
 
@@ -30,6 +30,13 @@ testv: build
 	docker run --name test_db -p 5432:5432 -e POSTGRES_PASSWORD=password -e POSTGRES_USER=new-tube -d postgres && \
 	sleep 5 && \
 	cd endpoints && \
-	go test -v || \
+	go test -v ; \
 	docker stop test_db && \
 	docker rm test_db
+
+.PHONY: testworkflow
+testworkflow: build
+	docker run --name test_db -p 5432:5432 -e POSTGRES_PASSWORD=password -e POSTGRES_USER=new-tube -d postgres && \
+	sleep 5 && \
+	cd endpoints && \
+	go test || exit 1

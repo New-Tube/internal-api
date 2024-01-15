@@ -366,20 +366,20 @@ func TestUserUpdate(t *testing.T) {
 		t.Errorf("Get user after update request error: %v", err)
 	}
 
-	if newModel.ID != userModel.ID {
-		t.Errorf("ID differ: expected: %d, got: %d", newModel.ID, userModel.ID)
+	if newModel.ID != req.ID {
+		t.Errorf("ID differ: expected: %d, got: %d", newModel.ID, req.ID)
 	}
-	if newModel.Nickname != userModel.Nickname {
-		t.Errorf("Nickname differ: expected: %s, got: %s", newModel.Nickname, userModel.Nickname)
+	if newModel.Nickname != req.Nickname {
+		t.Errorf("Nickname differ: expected: %s, got: %s", newModel.Nickname, req.Nickname)
 	}
-	if newModel.PasswordHash != userModel.PasswordHash {
-		t.Errorf("PasswordHash differ: expected: %d, got: %d", newModel.PasswordHash, userModel.PasswordHash)
+	if newModel.PasswordHash != req.PasswordHash {
+		t.Errorf("PasswordHash differ: expected: %d, got: %d", newModel.PasswordHash, req.PasswordHash)
 	}
-	if newModel.Name != userModel.Name {
-		t.Errorf("Name differ: expected: %s, got: %s", newModel.Name, userModel.Nickname)
+	if newModel.Name != req.Name {
+		t.Errorf("Name differ: expected: %s, got: %s", newModel.Name, req.Nickname)
 	}
-	if newModel.Surname != userModel.Surname {
-		t.Errorf("Surname differ: expected: %s, got: %s", newModel.Surname, userModel.Nickname)
+	if newModel.Surname != req.Surname {
+		t.Errorf("Surname differ: expected: %s, got: %s", newModel.Surname, req.Nickname)
 	}
 }
 
@@ -449,19 +449,19 @@ func TestUserUpdateFill(t *testing.T) {
 		t.Errorf("Get user after update request error: %v", err)
 	}
 
-	if newModel.ID != userModel.ID {
-		t.Errorf("ID differ: expected: %d, got: %d", newModel.ID, userModel.ID)
+	if newModel.ID != req.ID {
+		t.Errorf("ID differ: expected: %d, got: %d", newModel.ID, req.ID)
 	}
-	if newModel.Nickname != userModel.Nickname {
-		t.Errorf("Nickname differ: expected: %s, got: %s", newModel.Nickname, userModel.Nickname)
+	if newModel.Nickname != req.Nickname {
+		t.Errorf("Nickname differ: expected: %s, got: %s", newModel.Nickname, req.Nickname)
 	}
-	if newModel.PasswordHash != userModel.PasswordHash {
-		t.Errorf("PasswordHash differ: expected: %d, got: %d", newModel.PasswordHash, userModel.PasswordHash)
+	if newModel.PasswordHash != req.PasswordHash {
+		t.Errorf("PasswordHash differ: expected: %d, got: %d", newModel.PasswordHash, req.PasswordHash)
 	}
-	if newModel.Name != userModel.Name {
-		t.Errorf("Name differ: expected: %s, got: %s", newModel.Name, userModel.Nickname)
+	if newModel.Name != req.Name {
+		t.Errorf("Name differ: expected: %s, got: %s", newModel.Name, req.Nickname)
 	}
-	if newModel.Surname != userModel.Surname {
-		t.Errorf("Surname differ: expected: %s, got: %s", newModel.Surname, userModel.Nickname)
+	if newModel.Surname != req.Surname {
+		t.Errorf("Surname differ: expected: %s, got: %s", newModel.Surname, req.Nickname)
 	}
 }
